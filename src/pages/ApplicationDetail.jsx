@@ -174,7 +174,7 @@ function ThirdPartyTab({ app }) {
                 <div className="vendor-score-label">Risk Score</div>
                 <div className="vendor-score-sub"><StatusBadge status={kyb.riskLevel || 'Pending'} /></div>
               </div>
-              <div className="vendor-grid">
+              <div className="vendor-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
                 <div className="vendor-field">
                   <div className="vendor-field-label">Business Verified</div>
                   <div className="vendor-field-value">
@@ -191,17 +191,70 @@ function ThirdPartyTab({ app }) {
                   <div className="vendor-field-label">SOS Status</div>
                   <div className="vendor-field-value">{kyb.sosStatus}</div>
                 </div>
+                <div className="vendor-field" style={{ gridColumn: '1 / -1' }}>
+                  <div className="vendor-field-label">SOS Registration Data</div>
+                  <div className="vendor-field-value">{kyb.sosDetails || '—'}</div>
+                </div>
+                <div className="vendor-field" style={{ gridColumn: '1 / -1' }}>
+                  <div className="vendor-field-label">Corporate Structure</div>
+                  <div className="vendor-field-value">{kyb.corporateStructure || '—'}</div>
+                </div>
+                <div className="vendor-field" style={{ gridColumn: '1 / -1' }}>
+                  <div className="vendor-field-label">Beneficial Ownership</div>
+                  <div className="vendor-field-value">{kyb.beneficialOwners?.join(', ') || '—'}</div>
+                </div>
+
                 <div className="vendor-field">
-                  <div className="vendor-field-label">OFAC Clear</div>
+                  <div className="vendor-field-label">Sanctions (OFAC/UN/EU)</div>
                   <div className="vendor-field-value">
-                    {kyb.ofacClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Flagged</>}
+                    {kyb.sanctionsClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Flagged</>}
                   </div>
                 </div>
                 <div className="vendor-field">
+                  <div className="vendor-field-label">PEP Lists</div>
+                  <div className="vendor-field-value">
+                    {kyb.pepClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Found</>}
+                  </div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Adverse Media</div>
+                  <div className="vendor-field-value">
+                    {kyb.adverseMediaClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Present</>}
+                  </div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Regulatory Actions</div>
+                  <div className="vendor-field-value">
+                    {kyb.regulatoryActionsClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Flagged</>}
+                  </div>
+                </div>
+
+                <div className="vendor-field">
+                  <div className="vendor-field-label">UCC & Liens</div>
+                  <div className="vendor-field-value">{kyb.uccAndLiens || '—'}</div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Bankruptcy Records</div>
+                  <div className="vendor-field-value">
+                    {kyb.bankruptcyClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Found</>}
+                  </div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Court Judgments</div>
+                  <div className="vendor-field-value">
+                    {kyb.judgmentsClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Found</>}
+                  </div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Financial Stability</div>
+                  <div className="vendor-field-value">{kyb.financialStabilityScore || '—'}</div>
+                </div>
+
+                <div className="vendor-field" style={{ gridColumn: '1 / -1', marginTop: 'var(--space-md)', paddingTop: 'var(--space-sm)', borderTop: '1px solid var(--border-color)' }}>
                   <div className="vendor-field-label">Verified At</div>
                   <div className="vendor-field-value">{fmt(kyb.verifiedAt)}</div>
                 </div>
-                <div className="vendor-field">
+                <div className="vendor-field" style={{ gridColumn: '1 / -1' }}>
                   <div className="vendor-field-label">Flags</div>
                   <div className="vendor-field-value">{kyb.flags?.length > 0 ? kyb.flags.join(', ') : 'None'}</div>
                 </div>
@@ -294,38 +347,38 @@ function OffersTab({ app }) {
 
   return (
     <div className="tab-content">
-      <div className="offers-grid">
-        {app.offers.map((offer) => (
-          <div className="offer-card" key={offer.id}>
-            <div className="offer-card-header">
-              <span className="offer-card-id">{offer.id}</span>
-              <span className="offer-card-status">{offer.status}</span>
-            </div>
-            <div className="offer-card-body">
-              <div className="offer-rate">
-                <div className="offer-rate-value">{fmtPct(offer.rate)}</div>
-                <div className="offer-rate-label">Annual Rate</div>
-              </div>
-              <div className="offer-details">
-                <div className="offer-detail">
-                  <div className="offer-detail-value">{offer.term}mo</div>
-                  <div className="offer-detail-label">Term</div>
-                </div>
-                <div className="offer-detail">
-                  <div className="offer-detail-value">{cur(offer.monthlyPayment)}</div>
-                  <div className="offer-detail-label">Monthly</div>
-                </div>
-                <div className="offer-detail" style={{ gridColumn: '1 / -1' }}>
-                  <div className="offer-detail-value">{cur(offer.totalAmount)}</div>
-                  <div className="offer-detail-label">Total Amount</div>
-                </div>
-              </div>
-            </div>
-            <div className="offer-card-footer">
-              Generated {fmtDate(offer.generatedAt)}
-            </div>
-          </div>
-        ))}
+      <div className="data-table-container">
+        <table className="docs-table data-table">
+          <thead>
+            <tr>
+              <th>Offer ID</th>
+              <th>Rate</th>
+              <th>Term</th>
+              <th>Monthly Payment</th>
+              <th>Total Amount</th>
+              <th>Generated</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {app.offers.map((offer) => (
+              <tr key={offer.id}>
+                <td>
+                  <div className="table-id" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <DollarSign size={14} style={{ color: 'var(--text-muted)' }} />
+                    {offer.id}
+                  </div>
+                </td>
+                <td style={{ fontWeight: 600 }}>{fmtPct(offer.rate)}</td>
+                <td>{offer.term} mo</td>
+                <td>{cur(offer.monthlyPayment)}</td>
+                <td style={{ fontWeight: 500 }}>{cur(offer.totalAmount)}</td>
+                <td style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)' }}>{fmtDate(offer.generatedAt)}</td>
+                <td><StatusBadge status={offer.status} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

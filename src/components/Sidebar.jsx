@@ -8,13 +8,10 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       {/* Brand */}
-      <div className="sidebar-brand">
-        <div className="sidebar-brand-icon">
-          <ShieldCheck size={22} />
-        </div>
-        <div className="sidebar-brand-text">
-          <span className="sidebar-brand-name">LoanOS</span>
-          <span className="sidebar-brand-sub">Underwriter</span>
+      <div className="sidebar-brand" style={{ padding: '24px 24px 12px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+        <img src="/uncia-logo.svg" alt="Uncia Logo" style={{ maxWidth: '140px', display: 'block' }} />
+        <div className="sidebar-brand-text" style={{ marginLeft: '4px' }}>
+          <span className="sidebar-brand-sub">Underwriting Portal</span>
         </div>
       </div>
 

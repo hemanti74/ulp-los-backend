@@ -10,21 +10,21 @@
   --bg-card-hover: #f8fafc;
   --bg-input: #f1f5f9;
   --bg-input-focus: #e8eef6;
-  --bg-sidebar: #1e293b;
-  --bg-sidebar-hover: #334155;
-  --bg-sidebar-active: rgba(99, 102, 241, 0.15);
+  --bg-sidebar: #eadef4;
+  --bg-sidebar-hover: #dac5eb;
+  --bg-sidebar-active: rgba(85, 46, 140, 0.12);
 
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --text-muted: #94a3b8;
   --text-on-accent: #ffffff;
-  --text-sidebar: #cbd5e1;
-  --text-sidebar-active: #ffffff;
+  --text-sidebar: #475569;
+  --text-sidebar-active: #552e8c;
 
-  --accent-start: #6366f1;
-  --accent-end: #06b6d4;
+  --accent-start: #552e8c;
+  --accent-end: #8b5cd6;
   --accent-gradient: linear-gradient(135deg, var(--accent-start), var(--accent-end));
-  --accent-glow: rgba(99, 102, 241, 0.15);
+  --accent-glow: rgba(85, 46, 140, 0.15);
 
   --success: #16a34a;
   --success-bg: rgba(22, 163, 74, 0.08);
@@ -131,7 +131,7 @@ body {
 
 .sidebar-brand {
   padding: var(--space-xl) var(--space-lg);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
   display: flex;
   align-items: center;
   gap: var(--space-md);
@@ -232,8 +232,8 @@ body {
 
 .sidebar-link-badge {
   margin-left: auto;
-  background: rgba(99, 102, 241, 0.2);
-  color: #a5b4fc;
+  background: var(--accent-start);
+  color: #ffffff;
   font-size: 0.7rem;
   font-weight: 600;
   padding: 2px 8px;
@@ -242,7 +242,7 @@ body {
 
 .sidebar-footer {
   padding: var(--space-lg);
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(0,0,0,0.06);
 }
 
 .sidebar-user {
@@ -273,7 +273,7 @@ body {
 .sidebar-user-name {
   font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--text-on-accent);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -417,18 +417,18 @@ body {
 }
 
 .data-table thead {
-  background: var(--bg-secondary);
+  background: #e2e8f0;
 }
 
 .data-table th {
   text-align: left;
   padding: 0.75rem var(--space-lg);
   font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-bottom: 2px solid #cbd5e1;
   white-space: nowrap;
 }
 
@@ -528,14 +528,14 @@ body {
   flex-shrink: 0;
 }
 
-.status-badge.under-review     { background: rgba(37, 99, 235, 0.08);   color: #2563eb; }
-.status-badge.under-review .status-dot { background: #2563eb; }
+.status-badge.under-review     { background: rgba(85, 46, 140, 0.08);   color: #552e8c; }
+.status-badge.under-review .status-dot { background: #552e8c; }
 
-.status-badge.pending-documents { background: rgba(217, 119, 6, 0.08);  color: #d97706; }
-.status-badge.pending-documents .status-dot { background: #d97706; }
+.status-badge.pending-documents { background: rgba(139, 92, 214, 0.08); color: #8b5cd6; }
+.status-badge.pending-documents .status-dot { background: #8b5cd6; }
 
-.status-badge.kyb-in-progress  { background: rgba(124, 58, 237, 0.08);  color: #7c3aed; }
-.status-badge.kyb-in-progress .status-dot { background: #7c3aed; }
+.status-badge.kyb-in-progress  { background: rgba(110, 67, 184, 0.08);  color: #6e43b8; }
+.status-badge.kyb-in-progress .status-dot { background: #6e43b8; }
 
 .status-badge.approved         { background: rgba(22, 163, 74, 0.08);   color: #16a34a; }
 .status-badge.approved .status-dot { background: #16a34a; }
@@ -543,29 +543,29 @@ body {
 .status-badge.declined         { background: rgba(220, 38, 38, 0.06);   color: #dc2626; }
 .status-badge.declined .status-dot { background: #dc2626; }
 
-.status-badge.offer-sent       { background: rgba(6, 182, 212, 0.08);   color: #0891b2; }
-.status-badge.offer-sent .status-dot { background: #0891b2; }
+.status-badge.offer-sent       { background: rgba(85, 46, 140, 0.08);   color: #552e8c; }
+.status-badge.offer-sent .status-dot { background: #552e8c; }
 
 .status-badge.verified         { background: rgba(22, 163, 74, 0.08);   color: #16a34a; }
 .status-badge.verified .status-dot { background: #16a34a; }
 
-.status-badge.pending          { background: rgba(217, 119, 6, 0.08);   color: #d97706; }
-.status-badge.pending .status-dot { background: #d97706; }
+.status-badge.pending          { background: rgba(139, 92, 214, 0.08);  color: #8b5cd6; }
+.status-badge.pending .status-dot { background: #8b5cd6; }
 
 .status-badge.accepted         { background: rgba(22, 163, 74, 0.08);   color: #16a34a; }
 .status-badge.accepted .status-dot { background: #16a34a; }
 
-.status-badge.sent             { background: rgba(6, 182, 212, 0.08);   color: #0891b2; }
-.status-badge.sent .status-dot { background: #0891b2; }
+.status-badge.sent             { background: rgba(85, 46, 140, 0.08);   color: #552e8c; }
+.status-badge.sent .status-dot { background: #552e8c; }
 
-.status-badge.pending-review   { background: rgba(37, 99, 235, 0.08);   color: #2563eb; }
-.status-badge.pending-review .status-dot { background: #2563eb; }
+.status-badge.pending-review   { background: rgba(110, 67, 184, 0.08);  color: #6e43b8; }
+.status-badge.pending-review .status-dot { background: #6e43b8; }
 
 .status-badge.complete         { background: rgba(22, 163, 74, 0.08);   color: #16a34a; }
 .status-badge.complete .status-dot { background: #16a34a; }
 
-.status-badge.in-progress      { background: rgba(124, 58, 237, 0.08);  color: #7c3aed; }
-.status-badge.in-progress .status-dot { background: #7c3aed; }
+.status-badge.in-progress      { background: rgba(110, 67, 184, 0.08);  color: #6e43b8; }
+.status-badge.in-progress .status-dot { background: #6e43b8; }
 
 /* ═══════════════════════════════════════════
    Breadcrumb
