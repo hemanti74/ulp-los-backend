@@ -161,7 +161,7 @@ function ThirdPartyTab({ app }) {
             <div className="vendor-card-provider-icon kyb"><ShieldCheck size={18} /></div>
             <div>
               <div className="vendor-card-provider-name">{kyb?.provider || 'KYB Verification'}</div>
-              {kyb && <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)' }}>Know Your Business</div>}
+              {kyb && <div style={{ fontSize: 'var(--font-size-xs)', color: 'rgba(255, 255, 255, 0.8)' }}>Know Your Business</div>}
             </div>
           </div>
           {kyb ? <StatusBadge status={kyb.status} /> : <StatusBadge status="N/A" />}
@@ -270,6 +270,80 @@ function ThirdPartyTab({ app }) {
             <div className="vendor-na">
               <div className="vendor-na-icon"><ShieldCheck size={40} /></div>
               <p>KYB verification data missing.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Plaid Financial Summary Section */}
+      <div className="vendor-card">
+        <div className="vendor-card-header">
+          <div className="vendor-card-provider">
+            <div className="vendor-card-provider-icon plaid" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}>
+              <Building2 size={18} />
+            </div>
+            <div>
+              <div className="vendor-card-provider-name">{app.thirdParty.plaid?.provider || 'Financial Summary'}</div>
+              <div style={{ fontSize: 'var(--font-size-xs)', color: 'rgba(255, 255, 255, 0.8)' }}>Bank Activity Analytics</div>
+            </div>
+          </div>
+          <StatusBadge status={app.thirdParty.plaid?.status || 'Pending'} />
+        </div>
+        <div className="vendor-card-body">
+          {app.thirdParty.plaid && app.thirdParty.plaid.status === 'Connected' ? (
+            <div className="vendor-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+              <div className="vendor-field" style={{ gridColumn: '1 / -1', paddingBottom: 'var(--space-md)', borderBottom: '1px solid var(--border-color)', marginBottom: 'var(--space-md)' }}>
+                <div className="vendor-field-label">Connected Account</div>
+                <div className="vendor-field-value" style={{ fontSize: '1.25rem', color: 'var(--text-primary)', fontWeight: 600 }}>{app.thirdParty.plaid.institution} – {app.thirdParty.plaid.accountName}</div>
+              </div>
+              
+              <div className="vendor-field">
+                <div className="vendor-field-label">Available Balance</div>
+                <div className="vendor-field-value">{cur(app.thirdParty.plaid.availableBalance)}</div>
+              </div>
+              <div className="vendor-field">
+                <div className="vendor-field-label">Current Balance</div>
+                <div className="vendor-field-value">{cur(app.thirdParty.plaid.currentBalance)}</div>
+              </div>
+              <div className="vendor-field">
+                <div className="vendor-field-label">Avg Monthly Revenue</div>
+                <div className="vendor-field-value" style={{ color: 'var(--success)', fontWeight: 500 }}>{cur(app.thirdParty.plaid.avgMonthlyRevenue)}</div>
+              </div>
+              <div className="vendor-field">
+                <div className="vendor-field-label">Avg Monthly Expenses</div>
+                <div className="vendor-field-value" style={{ color: 'var(--error)' }}>{cur(app.thirdParty.plaid.avgMonthlyExpenses)}</div>
+              </div>
+              <div className="vendor-field">
+                <div className="vendor-field-label">Monthly Net Flow</div>
+                <div className="vendor-field-value" style={{ fontWeight: 600 }}>{cur(app.thirdParty.plaid.monthlyNetFlow)}</div>
+              </div>
+              <div className="vendor-field">
+                <div className="vendor-field-label">Revenue Trend</div>
+                <div className="vendor-field-value">{app.thirdParty.plaid.revenueTrend}</div>
+              </div>
+              <div className="vendor-field">
+                <div className="vendor-field-label">NSF Count (90 Days)</div>
+                <div className="vendor-field-value">
+                  {app.thirdParty.plaid.nsfCount90Days === 0 ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> 0</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> {app.thirdParty.plaid.nsfCount90Days}</>}
+                </div>
+              </div>
+              <div className="vendor-field">
+                <div className="vendor-field-label">Days Negative Balance</div>
+                <div className="vendor-field-value">
+                  {app.thirdParty.plaid.daysNegativeBalance === 0 ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> 0</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> {app.thirdParty.plaid.daysNegativeBalance}</>}
+                </div>
+              </div>
+
+              <div className="vendor-field" style={{ gridColumn: '1 / -1', marginTop: 'var(--space-md)', paddingTop: 'var(--space-sm)', borderTop: '1px solid var(--border-color)' }}>
+                <div className="vendor-field-label">Connected At</div>
+                <div className="vendor-field-value">{fmt(app.thirdParty.plaid.connectedAt)}</div>
+              </div>
+            </div>
+          ) : (
+            <div className="vendor-na">
+              <div className="vendor-na-icon"><Building2 size={40} /></div>
+              <p>Bank connection data is currently pending or missing.</p>
+              <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)', marginTop: 'var(--space-xs)' }}>The applicant has not yet connected an external banking account.</p>
             </div>
           )}
         </div>

@@ -73,7 +73,12 @@ export default function Dashboard() {
 
       {/* Metrics Row */}
       <div className="stat-cards">
-        <div className="stat-card">
+        <div 
+          className="stat-card" 
+          onClick={() => navigate('/applications')} 
+          style={{ cursor: 'pointer' }}
+          title="View all applications"
+        >
           <div className="stat-card-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <FileText size={14} style={{ color: 'var(--accent-start)' }}/> Total Applications
           </div>
@@ -111,7 +116,7 @@ export default function Dashboard() {
         {/* Priority Queue Pipeline */}
         <div className="card">
           <div className="card-title">
-            <AlertTriangle size={14} className="card-title-icon" style={{ color: 'var(--warning)' }} /> 
+            <AlertTriangle size={14} className="card-title-icon" /> 
             Priority Queue
           </div>
           {priorityApps.length === 0 ? (
@@ -143,7 +148,7 @@ export default function Dashboard() {
         {/* Closing Soon Pipeline */}
         <div className="card">
           <div className="card-title">
-            <CheckCircle size={14} className="card-title-icon" style={{ color: 'var(--success)' }} /> 
+            <CheckCircle size={14} className="card-title-icon" /> 
             Recent Closings
           </div>
           {recentFunded.length === 0 ? (

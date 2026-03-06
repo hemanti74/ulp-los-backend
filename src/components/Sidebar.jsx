@@ -1,9 +1,16 @@
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, FileText, Settings, ShieldCheck } from 'lucide-react';
+import { NavLink, Link, useLocation } from 'react-router-dom';
+import { LayoutDashboard, FileText, ChevronRight } from 'lucide-react';
 import { getApplications } from '../data/mockData';
 
+const STATUS_STAGES = ['Under Review', 'Pending Documents', 'KYB In Progress', 'Financial Verification', 'Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded', 'Declined'];
+
 export default function Sidebar() {
-  const count = getApplications().length;
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const currentStatus = searchParams.get('status');
+  
+  const allApps = getApplications();
+  const count = allApps.length;
 
   return (
     <aside className="sidebar">
@@ -30,16 +37,30 @@ export default function Sidebar() {
 
         <NavLink
           to="/applications"
-          className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+          className={({ isActive }) => `sidebar-link ${isActive && !currentStatus ? 'active' : ''}`}
         >
           <FileText size={18} className="sidebar-link-icon" />
           Applications
           <span className="sidebar-link-badge">{count}</span>
         </NavLink>
 
-        <div className="sidebar-link" style={{ opacity: 0.45, cursor: 'default' }}>
-          <Settings size={18} className="sidebar-link-icon" />
-          Settings
+        {/* Child Items */}
+        <div className="sidebar-sub-menu">
+          {STATUS_STAGES.map(status => {
+            const stageCount = allApps.filter(a => a.status === status).length;
+            if (stageCount === 0) return null;
+            return (
+              <Link
+                key={status}
+                to={`/applications?status=${encodeURIComponent(status)}`}
+                className={`sidebar-sub-link ${currentStatus === status ? 'active' : ''}`}
+              >
+                <ChevronRight size={14} className="sidebar-sub-icon" />
+                <span className="sidebar-sub-text">{status}</span>
+                <span className="sidebar-sub-count">{stageCount}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
 

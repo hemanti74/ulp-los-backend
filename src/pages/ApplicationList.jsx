@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, ChevronRight } from 'lucide-react';
 import { getApplications } from '../data/mockData';
 import StatusBadge from '../components/StatusBadge';
@@ -23,9 +23,25 @@ function formatCurrency(n) {
 
 export default function ApplicationList() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlStatus = searchParams.get('status');
+  
   const allApps = getApplications();
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState(urlStatus || 'All');
+
+  useEffect(() => {
+    setStatusFilter(urlStatus || 'All');
+  }, [urlStatus]);
+
+  const handleStatusChange = (s) => {
+    setStatusFilter(s);
+    if (s === 'All') {
+      setSearchParams({});
+    } else {
+      setSearchParams({ status: s });
+    }
+  };
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -85,7 +101,7 @@ export default function ApplicationList() {
             <button
               key={s}
               className={`filter-pill ${statusFilter === s ? 'active' : ''}`}
-              onClick={() => setStatusFilter(s)}
+              onClick={() => handleStatusChange(s)}
             >
               {s}
             </button>
