@@ -26,6 +26,8 @@ export default function ApplicationList() {
   const allApps = getApplications();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filtered = useMemo(() => {
     let list = allApps;
@@ -42,8 +44,17 @@ export default function ApplicationList() {
           a.applicant.email.toLowerCase().includes(q)
       );
     }
-    return list;
+    return list.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
   }, [allApps, search, statusFilter]);
+
+  // Reset to first page when filters change
+  useMemo(() => setCurrentPage(1), [search, statusFilter]);
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedApps = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(start, start + itemsPerPage);
+  }, [filtered, currentPage]);
 
   return (
     <div className="fade-in-up">
@@ -96,13 +107,13 @@ export default function ApplicationList() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((app) => (
+            {paginatedApps.map((app) => (
               <tr key={app.id} onClick={() => navigate(`/applications/${app.id}`)}>
                 <td><span className="table-id">{app.id}</span></td>
                 <td>
                   <div className="table-applicant">
-                    <span className="table-applicant-name">{app.applicant.name}</span>
-                    <span className="table-applicant-email">{app.applicant.email}</span>
+                    <span className="table-applicant-name">{app.applicant.name || app.business?.legalName || 'N/A'}</span>
+                    <span className="table-applicant-email">{app.applicant.email || 'N/A'}</span>
                   </div>
                 </td>
                 <td className="table-amount">{formatCurrency(app.loan.amount)}</td>
@@ -120,6 +131,34 @@ export default function ApplicationList() {
             )}
           </tbody>
         </table>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}>
+            <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
+              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filtered.length)} of {filtered.length} entries
+            </span>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{ padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', background: currentPage === 1 ? 'var(--bg-card)' : '#fff', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', opacity: currentPage === 1 ? 0.6 : 1 }}
+              >
+                Previous
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', padding: '0 0.5rem', fontSize: 'var(--font-size-sm)', fontWeight: 500 }}>
+                Page {currentPage} of {totalPages}
+              </div>
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{ padding: '0.4rem 0.8rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-color)', background: currentPage === totalPages ? 'var(--bg-card)' : '#fff', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', opacity: currentPage === totalPages ? 0.6 : 1 }}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -320,6 +320,63 @@ const applications = [
   },
 ];
 
+// Generate additional mock applications to reach 25 items for pagination testing
+const statuses = ['Under Review', 'Pending Documents', 'KYB In Progress', 'Approved', 'Declined', 'Offer Sent'];
+let currentId = 7;
+while (applications.length < 25) {
+  const isApproved = Math.random() > 0.5;
+  const status = statuses[Math.floor(Math.random() * statuses.length)];
+  
+  applications.push({
+    id: `APP-2026-${String(currentId).padStart(3, '0')}`,
+    type: 'business',
+    status: status,
+    submittedAt: `2026-03-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}T10:00:00Z`,
+    applicant: {
+      name: `Applicant ${currentId}`,
+      email: `applicant${currentId}@example.com`,
+      phone: '(555) 000-0000',
+      address: '123 Test St, City, ST 12345',
+    },
+    business: {
+      legalName: `Test Business ${currentId} LLC`,
+      dba: null,
+      ein: `00-00000${currentId}`,
+      entityType: 'LLC',
+      industry: 'Retail',
+      stateOfIncorporation: 'NY',
+      dateEstablished: '2020-01-01',
+      annualRevenue: Math.floor(Math.random() * 5000000) + 100000,
+      numberOfEmployees: Math.floor(Math.random() * 50) + 1,
+    },
+    loan: {
+      purpose: 'Working Capital',
+      amount: Math.floor(Math.random() * 900000) + 50000,
+      term: [12, 24, 36, 48, 60, 72][Math.floor(Math.random() * 6)],
+      collateralType: 'None',
+    },
+    thirdParty: {
+      kyb: {
+        provider: 'KYB Verify Pro',
+        status: status === 'KYB In Progress' ? 'In Progress' : 'Complete',
+        verifiedAt: status === 'KYB In Progress' ? null : '2026-02-28T10:30:00Z',
+        businessVerified: status !== 'KYB In Progress',
+        einMatch: status !== 'KYB In Progress',
+        sosStatus: status === 'KYB In Progress' ? 'Pending' : 'Active',
+      },
+      bureau: {
+        status: status === 'KYB In Progress' ? 'Pending' : 'Complete',
+      }
+    },
+    documents: [],
+    offers: status === 'Offer Sent' ? [{ id: `OFR-1${currentId}`, rate: 7.5, term: 60, monthlyPayment: 1000, totalAmount: 60000, status: 'Sent', generatedAt: '2026-03-01T10:00:00Z' }] : [],
+    timeline: [
+      { event: 'Application Submitted', date: '2026-03-01T10:00:00Z', actor: 'Applicant' }
+    ]
+  });
+  currentId++;
+}
+
 export function getApplications() {
   return applications;
 }
