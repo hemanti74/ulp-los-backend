@@ -8,7 +8,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       {/* Brand */}
-      <div className="sidebar-brand" style={{ padding: '24px 24px 12px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px' }}>
+      <div className="sidebar-brand" style={{ padding: '24px 24px 12px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px', cursor: 'pointer' }} onClick={() => window.location.href='/'}>
         <img src="/uncia-logo.svg" alt="Uncia Logo" style={{ maxWidth: '140px', display: 'block' }} />
         <div className="sidebar-brand-text" style={{ marginLeft: '4px' }}>
           <span className="sidebar-brand-sub">Underwriting Portal</span>
@@ -24,15 +24,18 @@ export default function Sidebar() {
           end
           className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
         >
+          <LayoutDashboard size={18} className="sidebar-link-icon" />
+          Dashboard
+        </NavLink>
+
+        <NavLink
+          to="/applications"
+          className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+        >
           <FileText size={18} className="sidebar-link-icon" />
           Applications
           <span className="sidebar-link-badge">{count}</span>
         </NavLink>
-
-        <div className="sidebar-link" style={{ opacity: 0.45, cursor: 'default' }}>
-          <LayoutDashboard size={18} className="sidebar-link-icon" />
-          Dashboard
-        </div>
 
         <div className="sidebar-link" style={{ opacity: 0.45, cursor: 'default' }}>
           <Settings size={18} className="sidebar-link-icon" />
