@@ -12,7 +12,7 @@ const applications = [
       name: 'Jane Smith',
       email: 'jane@acmesolutions.com',
       phone: '(555) 987-1234',
-      address: '456 Commerce Drive, Suite 200, San Francisco, CA 94105',
+      address: '456 Commerce Drive, San Francisco, CA 94105',
     },
     business: {
       legalName: 'Acme Solutions LLC',
@@ -314,6 +314,8 @@ const applications = [
       { event: 'Documents Uploaded', date: '2026-02-28T10:00:00Z', actor: 'Applicant' },
       { event: 'KYB Verification Complete', date: '2026-02-28T10:30:00Z', actor: 'KYB Verify Pro' },
       { event: 'Bureau Report Pulled', date: '2026-02-28T10:35:00Z', actor: 'System' },
+      { event: 'Financials Verified', date: '2026-02-28T11:00:00Z', actor: 'Underwriting Team' },
+      { event: 'Application Approved', date: '2026-03-01T09:30:00Z', actor: 'Underwriting Team' },
       { event: 'Offers Generated', date: '2026-03-01T10:00:00Z', actor: 'System' },
       { event: 'Offers Sent to Applicant', date: '2026-03-01T10:05:00Z', actor: 'Sarah Johnson (Underwriter)' },
     ],
@@ -321,11 +323,41 @@ const applications = [
 ];
 
 // Generate additional mock applications to reach 25 items for pagination testing
-const statuses = ['Under Review', 'Pending Documents', 'KYB In Progress', 'Approved', 'Declined', 'Offer Sent'];
+const statuses = ['Under Review', 'Pending Documents', 'KYB In Progress', 'Financial Verification', 'Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded', 'Declined'];
 let currentId = 7;
 while (applications.length < 25) {
-  const isApproved = Math.random() > 0.5;
   const status = statuses[Math.floor(Math.random() * statuses.length)];
+  const statusIdx = statuses.indexOf(status);
+
+  // Logical checkpoints
+  const docsPending = status === 'Pending Documents';
+  const kybComplete = statusIdx >= statuses.indexOf('Financial Verification') && status !== 'Declined';
+  const finComplete = statusIdx >= statuses.indexOf('Approved') && status !== 'Declined';
+  const hasOffer = statusIdx >= statuses.indexOf('Offer Sent') && status !== 'Declined';
+  
+  // Timeline building
+  const timeline = [{ event: 'Application Submitted', date: '2026-03-01T10:00:00Z', actor: 'Applicant' }];
+  if (!docsPending && statusIdx > 0) timeline.push({ event: 'Documents Uploaded', date: '2026-03-02T09:00:00Z', actor: 'Applicant' });
+  if (statusIdx >= statuses.indexOf('KYB In Progress')) timeline.push({ event: 'KYB Verification Initiated', date: '2026-03-02T10:00:00Z', actor: 'System' });
+  if (kybComplete) timeline.push({ event: 'KYB Verification Complete', date: '2026-03-02T10:30:00Z', actor: 'KYB Verify Pro' });
+  if (finComplete) timeline.push({ event: 'Financials Verified', date: '2026-03-03T14:00:00Z', actor: 'Underwriting Team' });
+  if (statusIdx >= statuses.indexOf('Approved')) timeline.push({ event: 'Application Approved', date: '2026-03-04T09:00:00Z', actor: 'Underwriting Team' });
+  if (statusIdx >= statuses.indexOf('Offer Sent')) timeline.push({ event: 'Offer Sent', date: '2026-03-04T10:00:00Z', actor: 'System' });
+  if (statusIdx >= statuses.indexOf('Offer Accepted')) timeline.push({ event: 'Offer Accepted', date: '2026-03-05T11:00:00Z', actor: 'Applicant' });
+  if (statusIdx >= statuses.indexOf('Contract Out')) timeline.push({ event: 'Contract Documents Out', date: '2026-03-05T14:00:00Z', actor: 'System' });
+  if (statusIdx >= statuses.indexOf('Funded')) timeline.push({ event: 'Loan Funded', date: '2026-03-06T09:00:00Z', actor: 'System' });
+  if (status === 'Declined') timeline.push({ event: 'Application Declined', date: '2026-03-05T09:00:00Z', actor: 'Underwriting Team' });
+
+  // Offers building if has offer
+  const offersList = hasOffer ? [{
+    id: `OFR-${String(currentId).padStart(3, '0')}`,
+    rate: 7.5,
+    term: 60,
+    monthlyPayment: 1100 + (Math.random() * 500),
+    totalAmount: 66000 + (Math.random() * 30000),
+    status: statusIdx >= statuses.indexOf('Offer Accepted') ? 'Accepted' : 'Sent',
+    generatedAt: '2026-03-04T10:00:00Z'
+  }] : [];
   
   applications.push({
     id: `APP-2026-${String(currentId).padStart(3, '0')}`,
@@ -358,21 +390,26 @@ while (applications.length < 25) {
     thirdParty: {
       kyb: {
         provider: 'KYB Verify Pro',
-        status: status === 'KYB In Progress' ? 'In Progress' : 'Complete',
-        verifiedAt: status === 'KYB In Progress' ? null : '2026-02-28T10:30:00Z',
-        businessVerified: status !== 'KYB In Progress',
-        einMatch: status !== 'KYB In Progress',
-        sosStatus: status === 'KYB In Progress' ? 'Pending' : 'Active',
+        status: status === 'KYB In Progress' ? 'In Progress' : (kybComplete ? 'Complete' : 'Pending'),
+        verifiedAt: kybComplete ? '2026-03-02T10:30:00Z' : null,
+        businessVerified: kybComplete ? true : null,
+        einMatch: kybComplete ? true : null,
+        sosStatus: kybComplete ? 'Active / Good Standing' : 'Pending',
+        riskLevel: kybComplete ? 'Low' : 'Pending',
+        riskScore: kybComplete ? 15 : null,
       },
       bureau: {
-        status: status === 'KYB In Progress' ? 'Pending' : 'Complete',
+        provider: 'Business Credit Bureau',
+        status: status === 'Financial Verification' ? 'In Progress' : (finComplete ? 'Complete' : 'Pending'),
+        businessCreditScore: finComplete ? 75 : null,
       }
     },
-    documents: [],
-    offers: status === 'Offer Sent' ? [{ id: `OFR-1${currentId}`, rate: 7.5, term: 60, monthlyPayment: 1000, totalAmount: 60000, status: 'Sent', generatedAt: '2026-03-01T10:00:00Z' }] : [],
-    timeline: [
-      { event: 'Application Submitted', date: '2026-03-01T10:00:00Z', actor: 'Applicant' }
-    ]
+    documents: docsPending ? [] : [
+      { name: 'Formation_Docs.pdf', type: 'Formation Docs', uploadedAt: '2026-03-02T09:00:00Z', size: '2.1 MB', status: finComplete ? 'Verified' : 'Under Review' },
+      { name: 'Bank_Statements.pdf', type: 'Bank Statement', uploadedAt: '2026-03-02T09:00:00Z', size: '5.4 MB', status: finComplete ? 'Verified' : 'Under Review' },
+    ],
+    offers: offersList,
+    timeline: timeline
   });
   currentId++;
 }

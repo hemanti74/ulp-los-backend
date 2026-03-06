@@ -537,6 +537,9 @@ body {
 .status-badge.kyb-in-progress  { background: rgba(110, 67, 184, 0.08);  color: #6e43b8; }
 .status-badge.kyb-in-progress .status-dot { background: #6e43b8; }
 
+.status-badge.financial-verification { background: rgba(37, 99, 235, 0.08); color: #2563eb; }
+.status-badge.financial-verification .status-dot { background: #2563eb; }
+
 .status-badge.approved         { background: rgba(22, 163, 74, 0.08);   color: #16a34a; }
 .status-badge.approved .status-dot { background: #16a34a; }
 
@@ -545,6 +548,15 @@ body {
 
 .status-badge.offer-sent       { background: rgba(85, 46, 140, 0.08);   color: #552e8c; }
 .status-badge.offer-sent .status-dot { background: #552e8c; }
+
+.status-badge.offer-accepted   { background: rgba(110, 67, 184, 0.08);   color: #6e43b8; }
+.status-badge.offer-accepted .status-dot { background: #6e43b8; }
+
+.status-badge.contract-out     { background: rgba(139, 92, 214, 0.08);   color: #8b5cd6; }
+.status-badge.contract-out .status-dot { background: #8b5cd6; }
+
+.status-badge.funded           { background: rgba(22, 163, 74, 0.08);   color: #16a34a; }
+.status-badge.funded .status-dot { background: #16a34a; }
 
 .status-badge.verified         { background: rgba(22, 163, 74, 0.08);   color: #16a34a; }
 .status-badge.verified .status-dot { background: #16a34a; }

@@ -4,7 +4,7 @@ import { Search, ChevronRight } from 'lucide-react';
 import { getApplications } from '../data/mockData';
 import StatusBadge from '../components/StatusBadge';
 
-const STATUS_FILTERS = ['All', 'Under Review', 'Pending Documents', 'KYB In Progress', 'Approved', 'Declined', 'Offer Sent'];
+const STATUS_FILTERS = ['All', 'Under Review', 'Pending Documents', 'KYB In Progress', 'Financial Verification', 'Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded', 'Declined'];
 
 function formatDate(iso) {
   const d = new Date(iso);
