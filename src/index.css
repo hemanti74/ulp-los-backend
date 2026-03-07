@@ -673,8 +673,11 @@ body {
 .status-badge.approved         { background: rgba(22, 163, 74, 0.08);   color: #16a34a; }
 .status-badge.approved .status-dot { background: #16a34a; }
 
-.status-badge.declined         { background: rgba(220, 38, 38, 0.06);   color: #dc2626; }
-.status-badge.declined .status-dot { background: #dc2626; }
+.status-badge.rejected         { background: rgba(220, 38, 38, 0.06);   color: #dc2626; }
+.status-badge.rejected .status-dot { background: #dc2626; }
+
+.status-badge.expired          { background: rgba(100, 116, 139, 0.1);  color: #64748b; }
+.status-badge.expired .status-dot { background: #64748b; }
 
 .status-badge.offer-sent       { background: rgba(85, 46, 140, 0.08);   color: #552e8c; }
 .status-badge.offer-sent .status-dot { background: #552e8c; }

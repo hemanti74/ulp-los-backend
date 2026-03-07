@@ -39,7 +39,7 @@ export default function Dashboard() {
     const approvedOrFunded = allApps.filter(a => ['Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded'].includes(a.status)).length;
     
     // Approval Rate calculation
-    const totalDecisioned = allApps.filter(a => ['Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded', 'Declined'].includes(a.status)).length;
+    const totalDecisioned = allApps.filter(a => ['Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded', 'Rejected'].includes(a.status)).length;
     const approvalRate = totalDecisioned === 0 ? 0 : Math.round((approvedOrFunded / totalDecisioned) * 100);
 
     return { totalApps, underReview, totalFundedAmount, approvalRate };

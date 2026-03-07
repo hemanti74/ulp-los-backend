@@ -33,27 +33,21 @@ const applications = [
     },
     thirdParty: {
       kyb: {
-        provider: 'KYB Verify Pro',
+        provider: 'LexisNexis Business InstantID',
         status: 'Complete',
         verifiedAt: '2026-03-04T15:10:00Z',
-        businessVerified: true,
-        einMatch: true,
+        businessVerificationScore: 88,
+        fraudRiskScore: 12,
+        firmographicsMatch: true,
+        feinMatch: true,
+        sosMatch: true,
         sosStatus: 'Active / Good Standing',
         sosDetails: 'Filed 2019-03-10, ID: C1234567',
-        beneficialOwners: ['Jane Smith (100%)'],
+        beneficialOwnersFound: true,
         sanctionsClear: true,
         pepClear: true,
         adverseMediaClear: true,
-        uccAndLiens: '0 Active',
-        bankruptcyClear: true,
-        judgmentsClear: true,
-        corporateStructure: 'Single Entity',
-        regulatoryActionsClear: true,
-        financialStabilityScore: '85/100 (Stable)',
-        ofacClear: true,
-        riskScore: 22,
-        riskLevel: 'Low',
-        flags: [],
+        verificationFlags: ['None'],
       },
       plaid: {
         provider: 'Plaid',
@@ -71,18 +65,32 @@ const applications = [
         revenueTrend: 'Growing (+15%)',
         flags: [],
       },
-      bureau: {
-        provider: 'Business Credit Bureau',
+      businessCredit: {
+        provider: 'Experian Intelliscore Plus',
         status: 'Complete',
         pulledAt: '2026-03-04T15:12:00Z',
-        businessCreditScore: 78,
-        paydexyScore: 72,
-        derogRecords: 0,
-        liensJudgments: 0,
-        tradeLines: 12,
-        avgDaysBeyondTerms: 8,
+        intelliscore: 82,
         riskClass: 'Low Risk',
+        daysBeyondTerms: 4,
+        tradeLines: 15,
+        legalFilings: 0,
+        derogatoryRecords: 0,
+        recentInquiries: 2,
         recommendations: 'Eligible for standard terms.',
+      },
+      consumerCredit: {
+        provider: 'Experian Consumer',
+        status: 'Complete',
+        pulledAt: '2026-03-04T15:13:00Z',
+        ficoScore: 745,
+        vantageScore: 752,
+        totalDebt: 34500,
+        creditUtilization: 18,
+        delinquencies30d: 0,
+        delinquencies60d: 0,
+        delinquencies90d: 0,
+        inquiries6m: 1,
+        fraudAlert: false,
       },
     },
     documents: [
@@ -339,30 +347,38 @@ const applications = [
 ];
 
 // Generate additional mock applications to reach 25 items for pagination testing
-const statuses = ['Under Review', 'Pending Documents', 'KYB In Progress', 'Financial Verification', 'Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded', 'Declined'];
+const statuses = ['Under Review', 'Pending Documents', 'KYB In Progress', 'Financial Verification', 'Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded', 'Rejected', 'Expired'];
 let currentId = 7;
 while (applications.length < 25) {
   const status = statuses[Math.floor(Math.random() * statuses.length)];
   const statusIdx = statuses.indexOf(status);
 
   // Logical checkpoints
-  const docsPending = status === 'Pending Documents';
-  const kybComplete = statusIdx >= statuses.indexOf('Financial Verification') && status !== 'Declined';
-  const finComplete = statusIdx >= statuses.indexOf('Approved') && status !== 'Declined';
-  const hasOffer = statusIdx >= statuses.indexOf('Offer Sent') && status !== 'Declined';
+  const docsPending = status === 'Pending Documents' || status === 'Expired';
+  const kybComplete = statusIdx >= statuses.indexOf('Financial Verification') && status !== 'Rejected' && status !== 'Expired';
+  const finComplete = statusIdx >= statuses.indexOf('Approved') && status !== 'Rejected' && status !== 'Expired';
+  const hasOffer = statusIdx >= statuses.indexOf('Offer Sent') && status !== 'Rejected' && status !== 'Expired';
+  
+  const isExpired = status === 'Expired';
+  const submitMonth = isExpired ? '02' : '03';
+  const submitDay = Math.floor(Math.random() * 20) + 1; // 1 to 20 to avoid month overflow
+  const dStr = (d) => String(d).padStart(2, '0');
+  const submitDateStr = `2026-${submitMonth}-${dStr(submitDay)}T10:00:00Z`;
+  const expireDateStr = `2026-03-${dStr(submitDay)}T10:00:00Z`; // 30 days (equiv) later
   
   // Timeline building
-  const timeline = [{ event: 'Application Submitted', date: '2026-03-01T10:00:00Z', actor: 'Applicant' }];
-  if (!docsPending && statusIdx > 0) timeline.push({ event: 'Documents Uploaded', date: '2026-03-02T09:00:00Z', actor: 'Applicant' });
-  if (statusIdx >= statuses.indexOf('KYB In Progress')) timeline.push({ event: 'KYB Verification Initiated', date: '2026-03-02T10:00:00Z', actor: 'System' });
-  if (kybComplete) timeline.push({ event: 'KYB Verification Complete', date: '2026-03-02T10:30:00Z', actor: 'KYB Verify Pro' });
-  if (finComplete) timeline.push({ event: 'Financials Verified', date: '2026-03-03T14:00:00Z', actor: 'Underwriting Team' });
-  if (statusIdx >= statuses.indexOf('Approved')) timeline.push({ event: 'Application Approved', date: '2026-03-04T09:00:00Z', actor: 'Underwriting Team' });
-  if (statusIdx >= statuses.indexOf('Offer Sent')) timeline.push({ event: 'Offer Sent', date: '2026-03-04T10:00:00Z', actor: 'System' });
-  if (statusIdx >= statuses.indexOf('Offer Accepted')) timeline.push({ event: 'Offer Accepted', date: '2026-03-05T11:00:00Z', actor: 'Applicant' });
-  if (statusIdx >= statuses.indexOf('Contract Out')) timeline.push({ event: 'Contract Documents Out', date: '2026-03-05T14:00:00Z', actor: 'System' });
-  if (statusIdx >= statuses.indexOf('Funded')) timeline.push({ event: 'Loan Funded', date: '2026-03-06T09:00:00Z', actor: 'System' });
-  if (status === 'Declined') timeline.push({ event: 'Application Declined', date: '2026-03-05T09:00:00Z', actor: 'Underwriting Team' });
+  const timeline = [{ event: 'Application Submitted', date: submitDateStr, actor: 'Applicant' }];
+  if (!docsPending && statusIdx > 0) timeline.push({ event: 'Documents Uploaded', date: `2026-${submitMonth}-${dStr(submitDay+1)}T09:00:00Z`, actor: 'Applicant' });
+  if (statusIdx >= statuses.indexOf('KYB In Progress')) timeline.push({ event: 'KYB Verification Initiated', date: `2026-${submitMonth}-${dStr(submitDay+1)}T10:00:00Z`, actor: 'System' });
+  if (kybComplete) timeline.push({ event: 'KYB Verification Complete', date: `2026-${submitMonth}-${dStr(submitDay+1)}T10:30:00Z`, actor: 'KYB Verify Pro' });
+  if (finComplete) timeline.push({ event: 'Financials Verified', date: `2026-${submitMonth}-${dStr(submitDay+2)}T14:00:00Z`, actor: 'Underwriting Team' });
+  if (statusIdx >= statuses.indexOf('Approved')) timeline.push({ event: 'Application Approved', date: `2026-${submitMonth}-${dStr(submitDay+3)}T09:00:00Z`, actor: 'Underwriting Team' });
+  if (statusIdx >= statuses.indexOf('Offer Sent')) timeline.push({ event: 'Offer Sent', date: `2026-${submitMonth}-${dStr(submitDay+3)}T10:00:00Z`, actor: 'System' });
+  if (statusIdx >= statuses.indexOf('Offer Accepted')) timeline.push({ event: 'Offer Accepted', date: `2026-${submitMonth}-${dStr(submitDay+4)}T11:00:00Z`, actor: 'Applicant' });
+  if (statusIdx >= statuses.indexOf('Contract Out')) timeline.push({ event: 'Contract Documents Out', date: `2026-${submitMonth}-${dStr(submitDay+4)}T14:00:00Z`, actor: 'System' });
+  if (statusIdx >= statuses.indexOf('Funded')) timeline.push({ event: 'Loan Funded', date: `2026-${submitMonth}-${dStr(submitDay+5)}T09:00:00Z`, actor: 'System' });
+  if (status === 'Rejected') timeline.push({ event: 'Application Rejected', date: `2026-${submitMonth}-${dStr(submitDay+3)}T09:00:00Z`, actor: 'Underwriting Team' });
+  if (status === 'Expired') timeline.push({ event: 'Application Expired', date: expireDateStr, actor: 'System' });
 
   // Offers building if has offer
   const offersList = hasOffer ? [{
@@ -372,14 +388,14 @@ while (applications.length < 25) {
     monthlyPayment: 1100 + (Math.random() * 500),
     totalAmount: 66000 + (Math.random() * 30000),
     status: statusIdx >= statuses.indexOf('Offer Accepted') ? 'Accepted' : 'Sent',
-    generatedAt: '2026-03-04T10:00:00Z'
+    generatedAt: `2026-${submitMonth}-${dStr(submitDay+3)}T10:00:00Z`
   }] : [];
   
   applications.push({
     id: `APP-2026-${String(currentId).padStart(3, '0')}`,
     type: 'business',
     status: status,
-    submittedAt: `2026-03-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}T10:00:00Z`,
+    submittedAt: submitDateStr,
     applicant: {
       name: `Applicant ${currentId}`,
       email: `applicant${currentId}@example.com`,
@@ -405,19 +421,31 @@ while (applications.length < 25) {
     },
     thirdParty: {
       kyb: {
-        provider: 'KYB Verify Pro',
+        provider: 'LexisNexis Business InstantID',
         status: status === 'KYB In Progress' ? 'In Progress' : (kybComplete ? 'Complete' : 'Pending'),
         verifiedAt: kybComplete ? '2026-03-02T10:30:00Z' : null,
-        businessVerified: kybComplete ? true : null,
-        einMatch: kybComplete ? true : null,
+        businessVerificationScore: kybComplete ? 84 : null,
+        fraudRiskScore: kybComplete ? 10 : null,
+        firmographicsMatch: kybComplete ? true : null,
+        feinMatch: kybComplete ? true : null,
+        sosMatch: kybComplete ? true : null,
         sosStatus: kybComplete ? 'Active / Good Standing' : 'Pending',
-        riskLevel: kybComplete ? 'Low' : 'Pending',
-        riskScore: kybComplete ? 15 : null,
+        verificationFlags: kybComplete ? ['None'] : [],
       },
-      bureau: {
-        provider: 'Business Credit Bureau',
+      businessCredit: {
+        provider: 'Experian Intelliscore Plus',
         status: status === 'Financial Verification' ? 'In Progress' : (finComplete ? 'Complete' : 'Pending'),
-        businessCreditScore: finComplete ? 75 : null,
+        intelliscore: finComplete ? 75 : null,
+        daysBeyondTerms: finComplete ? 5 : null,
+        tradeLines: finComplete ? 8 : null,
+      },
+      consumerCredit: {
+        provider: 'Experian Consumer',
+        status: status === 'Financial Verification' ? 'In Progress' : (finComplete ? 'Complete' : 'Pending'),
+        ficoScore: finComplete ? 720 : null,
+        vantageScore: finComplete ? 710 : null,
+        creditUtilization: finComplete ? 25 : null,
+        totalDebt: finComplete ? 15000 : null,
       },
       plaid: {
         provider: 'Plaid',

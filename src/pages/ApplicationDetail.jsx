@@ -150,7 +150,7 @@ function OverviewTab({ app }) {
    Third-Party Data Tab
    ══════════════════════════════════════════════ */
 function ThirdPartyTab({ app }) {
-  const { kyb, bureau } = app.thirdParty;
+  const { kyb, businessCredit, consumerCredit } = app.thirdParty;
 
   return (
     <div className="tab-content">
@@ -170,48 +170,48 @@ function ThirdPartyTab({ app }) {
           {kyb && kyb.status !== 'In Progress' ? (
             <>
               <div className="vendor-score">
-                <div className="vendor-score-value">{kyb.riskScore ?? '—'}</div>
-                <div className="vendor-score-label">Risk Score</div>
-                <div className="vendor-score-sub"><StatusBadge status={kyb.riskLevel || 'Pending'} /></div>
+                <div className="vendor-score-value">{kyb.businessVerificationScore ?? '—'}</div>
+                <div className="vendor-score-label">Business Verification Score</div>
+                <div className="vendor-score-sub"><StatusBadge status={kyb.businessVerificationScore >= 80 ? 'Verified' : 'Pending'} /></div>
               </div>
               <div className="vendor-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
                 <div className="vendor-field">
-                  <div className="vendor-field-label">Business Verified</div>
-                  <div className="vendor-field-value">
-                    {kyb.businessVerified ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Yes</> : <><XCircle size={14} style={{ color: 'var(--error)' }} /> No</>}
+                  <div className="vendor-field-label">Fraud Risk Score</div>
+                  <div className="vendor-field-value" style={{ fontWeight: 600, color: kyb.fraudRiskScore > 50 ? 'var(--error)' : 'var(--success)' }}>
+                    {kyb.fraudRiskScore ?? '—'} / 100
                   </div>
                 </div>
                 <div className="vendor-field">
-                  <div className="vendor-field-label">EIN Match</div>
+                  <div className="vendor-field-label">Firmographics Match</div>
                   <div className="vendor-field-value">
-                    {kyb.einMatch ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Confirmed</> : <><XCircle size={14} style={{ color: 'var(--error)' }} /> Mismatch</>}
+                    {kyb.firmographicsMatch ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Exact</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Partial/None</>}
                   </div>
                 </div>
                 <div className="vendor-field">
-                  <div className="vendor-field-label">SOS Status</div>
-                  <div className="vendor-field-value">{kyb.sosStatus}</div>
+                  <div className="vendor-field-label">FEIN Match</div>
+                  <div className="vendor-field-value">
+                    {kyb.feinMatch ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Confirmed</> : <><XCircle size={14} style={{ color: 'var(--error)' }} /> Mismatch</>}
+                  </div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">SOS Match</div>
+                  <div className="vendor-field-value">
+                    {kyb.sosMatch ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Confirmed</> : <><XCircle size={14} style={{ color: 'var(--error)' }} /> Mismatch</>}
+                  </div>
                 </div>
                 <div className="vendor-field" style={{ gridColumn: '1 / -1' }}>
                   <div className="vendor-field-label">SOS Registration Data</div>
                   <div className="vendor-field-value">{kyb.sosDetails || '—'}</div>
                 </div>
-                <div className="vendor-field" style={{ gridColumn: '1 / -1' }}>
-                  <div className="vendor-field-label">Corporate Structure</div>
-                  <div className="vendor-field-value">{kyb.corporateStructure || '—'}</div>
-                </div>
-                <div className="vendor-field" style={{ gridColumn: '1 / -1' }}>
-                  <div className="vendor-field-label">Beneficial Ownership</div>
-                  <div className="vendor-field-value">{kyb.beneficialOwners?.join(', ') || '—'}</div>
-                </div>
-
+                
                 <div className="vendor-field">
-                  <div className="vendor-field-label">Sanctions (OFAC/UN/EU)</div>
+                  <div className="vendor-field-label">Sanctions (OFAC)</div>
                   <div className="vendor-field-value">
                     {kyb.sanctionsClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Flagged</>}
                   </div>
                 </div>
                 <div className="vendor-field">
-                  <div className="vendor-field-label">PEP Lists</div>
+                  <div className="vendor-field-label">Watchlists & PEP</div>
                   <div className="vendor-field-value">
                     {kyb.pepClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Found</>}
                   </div>
@@ -222,41 +222,14 @@ function ThirdPartyTab({ app }) {
                     {kyb.adverseMediaClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Present</>}
                   </div>
                 </div>
-                <div className="vendor-field">
-                  <div className="vendor-field-label">Regulatory Actions</div>
-                  <div className="vendor-field-value">
-                    {kyb.regulatoryActionsClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Flagged</>}
-                  </div>
-                </div>
-
-                <div className="vendor-field">
-                  <div className="vendor-field-label">UCC & Liens</div>
-                  <div className="vendor-field-value">{kyb.uccAndLiens || '—'}</div>
-                </div>
-                <div className="vendor-field">
-                  <div className="vendor-field-label">Bankruptcy Records</div>
-                  <div className="vendor-field-value">
-                    {kyb.bankruptcyClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Found</>}
-                  </div>
-                </div>
-                <div className="vendor-field">
-                  <div className="vendor-field-label">Court Judgments</div>
-                  <div className="vendor-field-value">
-                    {kyb.judgmentsClear ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> Clear</> : <><AlertTriangle size={14} style={{ color: 'var(--warning)' }} /> Found</>}
-                  </div>
-                </div>
-                <div className="vendor-field">
-                  <div className="vendor-field-label">Financial Stability</div>
-                  <div className="vendor-field-value">{kyb.financialStabilityScore || '—'}</div>
-                </div>
 
                 <div className="vendor-field" style={{ gridColumn: '1 / -1', marginTop: 'var(--space-md)', paddingTop: 'var(--space-sm)', borderTop: '1px solid var(--border-color)' }}>
-                  <div className="vendor-field-label">Verified At</div>
-                  <div className="vendor-field-value">{fmt(kyb.verifiedAt)}</div>
+                  <div className="vendor-field-label">Verification Flags</div>
+                  <div className="vendor-field-value">{kyb.verificationFlags?.length > 0 ? kyb.verificationFlags.join(', ') : 'None'}</div>
                 </div>
                 <div className="vendor-field" style={{ gridColumn: '1 / -1' }}>
-                  <div className="vendor-field-label">Flags</div>
-                  <div className="vendor-field-value">{kyb.flags?.length > 0 ? kyb.flags.join(', ') : 'None'}</div>
+                  <div className="vendor-field-label">Verified At</div>
+                  <div className="vendor-field-value">{fmt(kyb.verifiedAt)}</div>
                 </div>
               </div>
             </>
@@ -270,6 +243,164 @@ function ThirdPartyTab({ app }) {
             <div className="vendor-na">
               <div className="vendor-na-icon"><ShieldCheck size={40} /></div>
               <p>KYB verification data missing.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Business Credit Section */}
+      <div className="vendor-card">
+        <div className="vendor-card-header">
+          <div className="vendor-card-provider">
+            <div className="vendor-card-provider-icon bureau" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}>
+              <BarChart3 size={18} />
+            </div>
+            <div>
+              <div className="vendor-card-provider-name">{businessCredit?.provider || 'Business Credit Report'}</div>
+              <div style={{ fontSize: 'var(--font-size-xs)', color: 'rgba(255, 255, 255, 0.8)' }}>Commercial Credit File</div>
+            </div>
+          </div>
+          {businessCredit ? <StatusBadge status={businessCredit.status} /> : <StatusBadge status="Pending" />}
+        </div>
+        <div className="vendor-card-body">
+          {businessCredit && businessCredit.status === 'Complete' ? (
+            <>
+              <div className="vendor-score">
+                <div className="vendor-score-value">{businessCredit.intelliscore ?? '—'}</div>
+                <div className="vendor-score-label">Intelliscore Plus</div>
+                {businessCredit.riskClass && <div className="vendor-score-sub"><StatusBadge status={businessCredit.riskClass} /></div>}
+              </div>
+              <div className="vendor-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Days Beyond Terms (DBT)</div>
+                  <div className="vendor-field-value" style={{ color: businessCredit.daysBeyondTerms > 15 ? 'var(--warning)' : 'var(--success)', fontWeight: 600 }}>
+                    {businessCredit.daysBeyondTerms ?? 0}
+                  </div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Active Trade Lines</div>
+                  <div className="vendor-field-value">{businessCredit.tradeLines ?? 0}</div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Legal Filings (B/J/L)</div>
+                  <div className="vendor-field-value">
+                    {businessCredit.legalFilings === 0 ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> 0</> : <><AlertTriangle size={14} style={{ color: 'var(--error)' }} /> {businessCredit.legalFilings}</>}
+                  </div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Derogatory Records</div>
+                  <div className="vendor-field-value">
+                    {businessCredit.derogatoryRecords === 0 ? <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> 0</> : <><AlertTriangle size={14} style={{ color: 'var(--error)' }} /> {businessCredit.derogatoryRecords}</>}
+                  </div>
+                </div>
+                {businessCredit.recommendations && (
+                  <div className="vendor-field" style={{ gridColumn: '1 / -1' }}>
+                    <div className="vendor-field-label">Recommendation</div>
+                    <div className="vendor-field-value">{businessCredit.recommendations}</div>
+                  </div>
+                )}
+                {businessCredit.pulledAt && (
+                  <div className="vendor-field" style={{ gridColumn: '1 / -1', marginTop: 'var(--space-md)', paddingTop: 'var(--space-sm)', borderTop: '1px solid var(--border-color)' }}>
+                    <div className="vendor-field-label">Pulled At</div>
+                    <div className="vendor-field-value">{fmt(businessCredit.pulledAt)}</div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : businessCredit && businessCredit.status === 'In Progress' ? (
+            <div className="vendor-na">
+              <div className="vendor-na-icon"><Clock size={40} /></div>
+              <p>Business credit report is currently being pulled…</p>
+            </div>
+          ) : (
+            <div className="vendor-na">
+              <div className="vendor-na-icon"><BarChart3 size={40} /></div>
+              <p>Business credit data missing.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Consumer Credit Section */}
+      <div className="vendor-card">
+        <div className="vendor-card-header">
+          <div className="vendor-card-provider">
+            <div className="vendor-card-provider-icon bureau" style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}>
+              <User size={18} />
+            </div>
+            <div>
+              <div className="vendor-card-provider-name">{consumerCredit?.provider || 'Consumer Credit Report'}</div>
+              <div style={{ fontSize: 'var(--font-size-xs)', color: 'rgba(255, 255, 255, 0.8)' }}>Guarantor File</div>
+            </div>
+          </div>
+          {consumerCredit ? <StatusBadge status={consumerCredit.status} /> : <StatusBadge status="Pending" />}
+        </div>
+        <div className="vendor-card-body">
+          {consumerCredit && consumerCredit.status === 'Complete' ? (
+            <>
+              <div className="vendor-score" style={{ display: 'flex', justifyContent: 'center', gap: '3rem' }}>
+                <div>
+                  <div className="vendor-score-value">{consumerCredit.ficoScore ?? '—'}</div>
+                  <div className="vendor-score-label">FICO® Score 8</div>
+                </div>
+                {consumerCredit.vantageScore && (
+                  <div>
+                    <div className="vendor-score-value">{consumerCredit.vantageScore}</div>
+                    <div className="vendor-score-label">VantageScore® 4.0</div>
+                  </div>
+                )}
+              </div>
+              <div className="vendor-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Total Outstanding Debt</div>
+                  <div className="vendor-field-value">{cur(consumerCredit.totalDebt ?? 0)}</div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Credit Utilization</div>
+                  <div className="vendor-field-value" style={{ color: consumerCredit.creditUtilization > 30 ? 'var(--warning)' : 'var(--success)', fontWeight: 600 }}>
+                    {consumerCredit.creditUtilization ?? 0}%
+                  </div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Recent Inquiries (6m)</div>
+                  <div className="vendor-field-value">{consumerCredit.inquiries6m ?? 0}</div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">Fraud Alert Found</div>
+                  <div className="vendor-field-value">
+                    {consumerCredit.fraudAlert ? <><AlertTriangle size={14} style={{ color: 'var(--error)' }} /> Yes</> : <><CheckCircle size={14} style={{ color: 'var(--success)' }} /> None</>}
+                  </div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">30-Day Lates</div>
+                  <div className="vendor-field-value">{consumerCredit.delinquencies30d ?? 0}</div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">60-Day Lates</div>
+                  <div className="vendor-field-value">{consumerCredit.delinquencies60d ?? 0}</div>
+                </div>
+                <div className="vendor-field">
+                  <div className="vendor-field-label">90+ Day Lates</div>
+                  <div className="vendor-field-value">{consumerCredit.delinquencies90d ?? 0}</div>
+                </div>
+
+                {consumerCredit.pulledAt && (
+                  <div className="vendor-field" style={{ gridColumn: '1 / -1', marginTop: 'var(--space-md)', paddingTop: 'var(--space-sm)', borderTop: '1px solid var(--border-color)' }}>
+                    <div className="vendor-field-label">Pulled At</div>
+                    <div className="vendor-field-value">{fmt(consumerCredit.pulledAt)}</div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : consumerCredit && consumerCredit.status === 'In Progress' ? (
+            <div className="vendor-na">
+              <div className="vendor-na-icon"><Clock size={40} /></div>
+              <p>Consumer credit report is currently being pulled…</p>
+            </div>
+          ) : (
+            <div className="vendor-na">
+              <div className="vendor-na-icon"><User size={40} /></div>
+              <p>Consumer credit data missing.</p>
             </div>
           )}
         </div>

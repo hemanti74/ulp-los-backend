@@ -2,7 +2,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, FileText, ChevronRight } from 'lucide-react';
 import { getApplications } from '../data/mockData';
 
-const STATUS_STAGES = ['Under Review', 'Pending Documents', 'KYB In Progress', 'Financial Verification', 'Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded', 'Declined'];
+const STATUS_STAGES = ['Under Review', 'Pending Documents', 'KYB In Progress', 'Financial Verification', 'Approved', 'Offer Sent', 'Offer Accepted', 'Contract Out', 'Funded', 'Rejected', 'Expired'];
 
 export default function Sidebar() {
   const location = useLocation();
