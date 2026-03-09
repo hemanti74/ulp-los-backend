@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft, Calendar, Mail, Phone, MapPin, Building2, User,
   FileText, DollarSign, Clock, ShieldCheck, BarChart3, CheckCircle,
-  XCircle, AlertTriangle, Package, ChevronRight,
+  XCircle, AlertTriangle, Package, ChevronRight, Search, X,
 } from 'lucide-react';
+import samplePdf from '../assets/2643.pdf?url';
 import { getApplicationById } from '../data/mockData';
 import StatusBadge from '../components/StatusBadge';
 
@@ -484,9 +486,114 @@ function ThirdPartyTab({ app }) {
 }
 
 /* ══════════════════════════════════════════════
+   Draggable + Resizable PDF Viewer Modal
+   ══════════════════════════════════════════════ */
+function DocViewerModal({ doc, pdfSrc, onClose }) {
+  const MIN_W = 420;
+  const MIN_H = 320;
+  const modalRef = useRef(null);
+  const dragState = useRef(null);
+  const resizeState = useRef(null);
+
+  // Centre on mount
+  const [pos, setPos] = useState(() => ({
+    x: Math.round((window.innerWidth - 900) / 2),
+    y: Math.round((window.innerHeight - 620) / 2),
+    w: Math.min(900, window.innerWidth - 40),
+    h: Math.min(620, window.innerHeight - 40),
+  }));
+
+  /* ── Drag ───────────────────────────── */
+  const onDragStart = useCallback((e) => {
+    if (e.target.closest('.doc-modal-close')) return;
+    e.preventDefault();
+    dragState.current = { startX: e.clientX, startY: e.clientY, origX: pos.x, origY: pos.y };
+
+    const onMove = (ev) => {
+      const ds = dragState.current;
+      if (!ds) return;
+      setPos(p => ({ ...p,
+        x: Math.max(0, Math.min(window.innerWidth - p.w, ds.origX + ev.clientX - ds.startX)),
+        y: Math.max(0, Math.min(window.innerHeight - p.h, ds.origY + ev.clientY - ds.startY)),
+      }));
+    };
+    const onUp = () => {
+      dragState.current = null;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }, [pos.x, pos.y]);
+
+  /* ── Resize ─────────────────────────── */
+  const onResizeStart = useCallback((e, dir) => {
+    e.preventDefault();
+    e.stopPropagation();
+    resizeState.current = { startX: e.clientX, startY: e.clientY, origX: pos.x, origY: pos.y, origW: pos.w, origH: pos.h, dir };
+
+    const onMove = (ev) => {
+      const rs = resizeState.current;
+      if (!rs) return;
+      const dx = ev.clientX - rs.startX;
+      const dy = ev.clientY - rs.startY;
+      setPos(() => {
+        let { origX: nx, origY: ny, origW: nw, origH: nh } = rs;
+        if (rs.dir.includes('e')) nw = Math.max(MIN_W, rs.origW + dx);
+        if (rs.dir.includes('w')) { nw = Math.max(MIN_W, rs.origW - dx); nx = rs.origX + rs.origW - nw; }
+        if (rs.dir.includes('s')) nh = Math.max(MIN_H, rs.origH + dy);
+        if (rs.dir.includes('n')) { nh = Math.max(MIN_H, rs.origH - dy); ny = rs.origY + rs.origH - nh; }
+        return { x: nx, y: ny, w: nw, h: nh };
+      });
+    };
+    const onUp = () => {
+      resizeState.current = null;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }, [pos]);
+
+  const edges = ['n','s','e','w','ne','nw','se','sw'];
+
+  return createPortal(
+    <div className="doc-modal-overlay" onClick={onClose}>
+      <div
+        ref={modalRef}
+        className="doc-modal"
+        onClick={(e) => e.stopPropagation()}
+        style={{ position: 'fixed', left: pos.x, top: pos.y, width: pos.w, height: pos.h }}
+      >
+        {/* Resize handles */}
+        {edges.map(d => (
+          <div key={d} className={`resize-handle resize-${d}`} onMouseDown={(e) => onResizeStart(e, d)} />
+        ))}
+
+        <div className="doc-modal-header" onMouseDown={onDragStart} style={{ cursor: 'grab' }}>
+          <div className="doc-modal-title">
+            <FileText size={16} />
+            {doc.name}
+          </div>
+          <button className="doc-modal-close" onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+        <div className="doc-modal-body">
+          <iframe src={pdfSrc} title={doc.name} className="doc-modal-pdf" />
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+/* ══════════════════════════════════════════════
    Documents Tab
    ══════════════════════════════════════════════ */
 function DocumentsTab({ app }) {
+  const [viewingDoc, setViewingDoc] = useState(null);
+
   if (app.documents.length === 0) {
     return (
       <div className="tab-content">
@@ -510,6 +617,7 @@ function DocumentsTab({ app }) {
               <th>Uploaded</th>
               <th>Size</th>
               <th>Status</th>
+              <th style={{ width: '60px', textAlign: 'center' }}>View</th>
             </tr>
           </thead>
           <tbody>
@@ -525,11 +633,24 @@ function DocumentsTab({ app }) {
                 <td style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)' }}>{fmtDate(doc.uploadedAt)}</td>
                 <td style={{ color: 'var(--text-muted)', fontSize: 'var(--font-size-xs)' }}>{doc.size}</td>
                 <td><StatusBadge status={doc.status} /></td>
+                <td style={{ textAlign: 'center' }}>
+                  <button
+                    className="doc-view-btn"
+                    title={`View ${doc.name}`}
+                    onClick={() => setViewingDoc(doc)}
+                  >
+                    <Search size={16} />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {viewingDoc && (
+        <DocViewerModal doc={viewingDoc} pdfSrc={samplePdf} onClose={() => setViewingDoc(null)} />
+      )}
     </div>
   );
 }
